@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import subprocess
 
 host = 'vega.cs.washington.edu:3001'
@@ -7,11 +8,18 @@ INT = "INT_TYPE"
 DOUBLE = "DOUBLE_TYPE"
 STRING = "STRING_TYPE"
 DOUBLE_STRING = "STRING_TYPE"
+LONG = "LONG_TYPE"
 
 TYPE_MAP = {'int': INT,
             'varchar' : STRING,
             'bit': INT,
-            'decimal': DOUBLE
+            'decimal': DOUBLE,
+            'bigint': LONG,
+            'money': DOUBLE,
+            'uniqueidentifier': STRING,
+            'datetime': STRING,
+            'smallint': INT,
+            'text': STRING,
             }
 
 def convert_type(s):
@@ -24,7 +32,10 @@ def load_schema(phile):
             toks = line.split()
             assert len(toks) == 2
             colname = toks[0]
-            coltype = convert_type(toks[1])
+            if toks[1].startswith('null'):
+                coltype = STRING
+            else:
+                coltype = convert_type(toks[1])
             schema.append((colname, coltype))
 
     return schema
@@ -54,9 +65,9 @@ def do_create(table_name, schema):
                      '-H','Content-type: application/json',
                      '-H', 'Myria-Auth: DEF459', '-d',  json])
 
-def do_ingest(table_name, phile):
-    url = '%s/dataset/user-public/program-adhoc/relation-%s/data?format=csv' % (
-        host, table_name)
+def do_ingest(table_name, phile, _format='csv'):
+    url = '%s/dataset/user-public/program-adhoc/relation-%s/data?format=%s' % (
+        host, table_name, _format)
     args = ['curl', '-i', '-XPUT', url,
             '-H', 'Content-type: application/octet-stream',
             '-H', 'Myria-Auth: DEF459',
@@ -64,7 +75,7 @@ def do_ingest(table_name, phile):
     print ' '.join(args)
     subprocess.call(args)
 
-tables = ['txtype']
+tables = ['txtype', 'txdetail', 'product', 'txheader', 'store']
 
 for table in tables:
     phile = table + '_schema.txt'
@@ -73,4 +84,8 @@ for table in tables:
 
     do_create(table, schema)
 
-    do_ingest(table, table + '.csv')
+
+    if os.path.exists(table + '.tsv'):
+        do_ingest(table, table + '.tsv', 'tsv')
+    else:
+        do_ingest(table, table + '.csv')

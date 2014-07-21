@@ -30,6 +30,6 @@ CurrencyID		int
 LGAliasID		int
 ClientTypeID		int
 RetailerStoreCode	varchar
-isActive		bit
+isActive		null_bit
 isActiveChangedDate	datetime
 isActiveModifiedUser	varchar
