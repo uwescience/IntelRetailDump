@@ -1,0 +1,6 @@
+TxTypeID	int
+TxTypeDescription	varchar
+ApplyToPointsCurrent	bit
+ApplyToPointsPTD	bit
+ApplyToPointsLife	bit
+DefaultVisitCount	decimal

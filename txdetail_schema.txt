@@ -1,0 +1,10 @@
+TxDetailID	bigint
+TxHeaderID	bigint
+ProductID	int
+Quantity	decimal
+RetailPriceExtended	money
+Points			decimal
+TotalCostExtended	money
+GrossMarginExtended	money
+Discount		money
+ManufacturerPointID	int
